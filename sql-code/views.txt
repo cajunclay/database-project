@@ -1,0 +1,13 @@
+VIEW: Count # of orders.
+
+CREATE VIEW orders AS
+select count(*) from tblOrders;
+
+------------------------------------------
+
+VIEW: Count # of events.
+
+CREATE VIEW events AS
+select count(*) from tblEvents;
+
+------------------------------------------

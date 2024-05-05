@@ -1,0 +1,102 @@
+TRIGGER: Check for existing characters before deleting a game theme.
+
+delimiter //
+CREATE TRIGGER CHECK_CHARACTERS BEFORE DELETE ON tblGames
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblCharacters WHERE tblGames_game_id = old.game_id) > 0 THEN
+		call customError("Characters associated with this game must first be deleted, before you can delete this game theme.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check for existing events before deleting a game theme.
+
+delimiter //
+CREATE TRIGGER CHECK_EVENTS BEFORE DELETE ON tblGames
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblEvents WHERE tblGames_game_id = old.game_id) > 0 THEN
+		call customError("Events associated with this game must first be deleted, before you can delete this game theme.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check for existing character assignments before deleting an event.
+
+delimiter //
+CREATE TRIGGER CHECK_ASSIGNMENTS BEFORE DELETE ON tblEvents
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblCharacterAssignment WHERE tblEvents_event_id = old.event_id) > 0 THEN
+		call customError("Character assignments must first be deleted, before you can delete this event.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check if using a valid customer ID before scheduling a new event.
+
+delimiter //
+CREATE TRIGGER CHECK_ID BEFORE INSERT ON tblEvents
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblCustomer WHERE customer_id = new.tblCustomer_customer_id) = 0 THEN
+		call customError("A valid customer ID must be used when creating a new event.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check if a customer has an existing order before deleting a customer.
+
+delimiter //
+CREATE TRIGGER CHECK_ORDERS BEFORE DELETE ON tblCustomer
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblOrders WHERE tblCustomer_customer_id = old.customer_id) > 0 THEN
+		call customError("Orders must first be deleted, before you can delete this customer.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check if a guest has an existing character assignment before deleting a guest.
+
+delimiter //
+CREATE TRIGGER CHECK_GUEST_ASSIGNMENTS BEFORE DELETE ON tblGuests
+FOR EACH ROW
+BEGIN
+	IF (SELECT COUNT(*) FROM tblCharacterAssignment WHERE tblGuests_guest_id = old.guest_id) > 0 THEN
+		call customError("Character assignments must first be deleted, before you can delete this guest.");
+	END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+TRIGGER: Check if a customer has a scheduled event before deleting customer.
+
+delimiter //
+CREATE TRIGGER CHECK_HAS_EVENT BEFORE DELETE ON tblCustomer
+FOR EACH ROW
+BEGIN
+IF (SELECT COUNT(*) FROM tblEvents WHERE tblCustomer_customer_id = old.customer_id) > 0 THEN
+call customError("Events managed by this customer must first be deleted, before you can delete this customer.");
+END IF;
+END
+//
+delimiter ;

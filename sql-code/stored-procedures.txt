@@ -1,0 +1,29 @@
+STORED PROCEDURE: Check if guest already has an assigned character.
+
+delimiter //
+CREATE PROCEDURE add_assignment(IN guest_id int, event_id int, customer_id int, game_id int, character_id int, game_id2 int)
+BEGIN
+
+IF (select count(*) from tblCharacterAssignment where tblGuests_guest_id=guest_id and tblEvents_event_id=event_id)>0
+THEN CALL customError("This guest already has an assigned character!");
+ELSE
+INSERT INTO tblCharacterAssignment(tblGuests_guest_id, tblEvents_event_id, tblEvents_tblCustomer_customer_id, tblEvents_tblGames_game_id, tblCharacters_character_id,
+    tblCharacters_tblGames_game_id, assignment_invite_sent) VALUES(guest_id, event_id, customer_id, game_id, character_id, game_id2, 0);
+END IF;
+END
+//
+delimiter ;
+
+------------------------------------------
+
+STORED PROCEDURE: To output custom SQL error.
+
+delimiter //
+CREATE PROCEDURE customError(IN errorText VARCHAR(255))
+BEGIN
+	DECLARE errorInformation varchar(255);
+	SELECT errorText into errorInformation;
+	signal sqlstate '45000' set message_text = errorInformation;
+END
+//
+delimiter ;

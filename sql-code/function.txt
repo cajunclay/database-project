@@ -1,0 +1,11 @@
+FUNCTION: Return guest count for an event.
+
+delimiter //
+create function guest_count (event_id int) returns int
+BEGIN
+declare gcount int;
+    set gcount = (select count(*) from tblCharacterAssignment where tblEvents_event_id = event_id);
+    return gcount;
+END
+//
+delimiter ;
